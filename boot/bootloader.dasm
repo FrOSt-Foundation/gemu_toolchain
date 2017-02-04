@@ -1,0 +1,10 @@
+; A contains the device struct
+; B contains the floppy ID
+
+log A
+log B
+
+sub PC, 1
+
+.org 0x1FF, 0
+.dat 0x55AA

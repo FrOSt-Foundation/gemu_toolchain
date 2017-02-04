@@ -1,0 +1,194 @@
+; KISS bootloader
+; looks for a boot sector in every connected floppy and loads it. Sets A to the device struct and B to the floppy ID the boot sector was loaded from
+#define clock_A 0xB402
+#define clock_B 0x12D1
+#define keyboard_A 0x7406
+#define keyboard_B 0x30C1
+#define screen_A 0xF615
+#define screen_B 0x734D
+#define floppy_A 0x24C5
+#define floppy_B 0x4FD5
+
+#define SECTOR_LOCATION 0xD000
+#define FLOPPY_STATE_BUSY 3
+
+#define COPY_LOCATION 0xF000
+#define DEVICES_LOCATION 0xE000
+
+jsr detect_peripherals
+
+log [clocks]
+log [screens]
+log [keyboard]
+log [floppies]
+
+ife [screens], 0
+    set PC, error
+ife [floppies], 0
+    set PC, error
+
+set A, 0
+set B, 0x8000
+hwi [screens] ;Mapping screen
+
+jsr find_bootsector
+set I, error_msg
+ifn Z, 0xFFFF
+    set I, loading_msg
+set B, 0x2000
+set J, 0x8000
+:print_loop
+    set A, [I]
+    bor A, B
+    sti [J], A
+    ifn [I], 0
+        set PC, print_loop
+ife Z, 0xFFFF
+    set PC, error
+set A, DEVICES_LOCATION
+set B, Z
+set I, clocks
+set J, DEVICES_LOCATION
+set C, loading_msg + 1 - clocks
+jsr memcpy
+set I, copy
+set J, COPY_LOCATION
+set C, copy_end + 1 - copy
+jsr memcpy
+set I, memcpy
+set J, COPY_LOCATION + copy_end - copy
+set C, memcpy_end + 1 - memcpy 
+jsr memcpy
+set PUSH, 0
+set PC, COPY_LOCATION
+
+:error
+log [clocks]
+log [keyboard]
+log [screens]
+log [floppies]
+sub PC, 1
+
+:copy
+set I, SECTOR_LOCATION
+set J, 0
+set C, 512
+set PUSH, PC
+:copy_end
+
+:find_bootsector
+set I, 0
+set Z, 0xFFFF
+ife I, [n_floppies]
+    set PC, POP
+:find_bootsector_loop
+    set A, 2
+    set X, 0
+    set Y, SECTOR_LOCATION
+    hwi [I + floppies]
+    jsr wait
+    ife [SECTOR_LOCATION + 511], 0x55AA
+        set PC, sector_found
+    add I, 1
+    ifn I, [n_floppies]
+        set PC, find_bootsector_loop
+set PC, POP
+:sector_found
+set Z, [I + floppies]
+set PC, POP
+:wait
+set A, 0
+hwi [I + floppies]
+ife B, FLOPPY_STATE_BUSY
+    set PC, wait
+set PC, POP
+
+:add_clock
+ife [n_clocks], 10
+    set PC, POP
+set Z, [n_clocks]
+set [Z + clocks], J
+mul Z, 5
+set [Z + data_clocks], A
+set [Z + data_clocks + 1], B
+set [Z + data_clocks + 2], C
+set [Z + data_clocks + 3], X
+set [Z + data_clocks + 4], Y
+add [n_clocks], 1
+set PC, POP
+
+:add_screen
+ife [n_screens], 10
+    set PC, POP
+set Z, [n_screens]
+set [Z + screens], J
+mul Z, 5
+set [Z + data_screens], A
+set [Z + data_screens + 1], B
+set [Z + data_screens + 2], C
+set [Z + data_screens + 3], X
+set [Z + data_screens + 4], Y
+add [n_screens], 1
+set PC, POP
+
+:add_floppy
+ife [n_floppies], 10
+    set PC, POP
+set Z, [n_floppies]
+set [Z + floppies], J
+mul Z, 5
+set [Z + data_floppies], A
+set [Z + data_floppies + 1], B
+set [Z + data_floppies + 2], C
+set [Z + data_floppies + 3], X
+set [Z + data_floppies + 4], Y
+add [n_floppies], 1
+set PC, POP
+
+:detect_peripherals
+hwn I
+add I, 100
+set J, 0
+:detect_peripherals_loop
+    hwq J
+    ife A, clock_A
+        ife B, clock_B
+            jsr add_clock
+    ife A, keyboard_A
+        ife B, keyboard_B
+            set [keyboard], J
+    ife A, screen_A
+        ife B, screen_B
+            jsr add_screen
+    ife A, floppy_A
+        ife B, floppy_B
+            jsr add_floppy
+    add J, 1
+    ifn J, I
+        set PC, detect_peripherals_loop
+set PC, POP
+
+; I -> from
+; J -> to
+; C -> size
+:memcpy
+ife C, 0
+    set PC, POP
+sti [J], [I]
+sub C, 1
+sub PC, 5
+:memcpy_end
+
+:n_clocks .dat 0
+:clocks .dat 0 0 0 0 0 0 0 0 0 0
+:data_clocks .dat 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+:keyboard .dat 0
+:n_screens .dat 0
+:screens .dat 0 0 0 0 0 0 0 0 0 0
+:data_screens .dat 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+:n_floppies .dat 0
+:floppies .dat 0 0 0 0 0 0 0 0 0 0
+:data_floppies .dat 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+:loading_msg .dat "Found boot sector, loading..."
+:error_msg .dat "No boot sector found, aborting..."
