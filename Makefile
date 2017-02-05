@@ -28,13 +28,18 @@ BIN = bin/cFrOSt.bin
 BOOTSECTOR = boot/bootsector.dasm
 BIN_BOOTSECTOR = bin/bootsector.bin.noswap
 
+SECTOR_SIZE = 1024
+
 all: $(BIN_BOOTLOADER) $(BIN)
 
-$(BIN): $(BIN_BOOTSECTOR) $(BOOT_FILES_AS) $(KERNEL_FILES_AS)
-	cat $(BOOT_FILES_AS) $(KERNEL_FILES_AS) > $(BIN_AS)
-	$(AS) $(BIN_AS) -o $@.nobootsector.noswap
+$(BIN): $(BIN_BOOTSECTOR) $(BIN).nobootsector.noswap
+	$(shell echo -ne \\x$(shell echo "(" $(shell wc -c $@.nobootsector.noswap | cut -d " " -f1) "+" $(SECTOR_SIZE) "-1)/" $(SECTOR_SIZE) | bc) | dd status=none conv=notrunc bs=1 count=1 of=$(BIN_BOOTSECTOR))
 	cat $(BIN_BOOTSECTOR) $@.nobootsector.noswap > $@.noswap
-	dd conv=swab < $@.noswap > $@
+	dd status=none conv=swab < $@.noswap > $@
+
+$(BIN).nobootsector.noswap: $(BOOT_FILES_AS) $(KERNEL_FILES_AS)
+	cat $(BOOT_FILES_AS) $(KERNEL_FILES_AS) > $(BIN_AS)
+	$(AS) $(BIN_AS) -o $@
 
 $(BIN_BOOTSECTOR) : $(BOOTSECTOR)
 	$(AS) $< -o $@

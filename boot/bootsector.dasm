@@ -4,7 +4,8 @@
 ; A contains the floppy ID
 ; B contains the device list ID
 
-#define PROGRAM_SIZE 0x1 ; in sectors (TO CHANGE)
+; in sectors, not including the bootsector (TO CHANGE)
+:PROGRAM_SIZE .dat 0
 
 #define COPY_LOCATION 0xF000
 #define FLOPPY_STATE_BUSY 3
