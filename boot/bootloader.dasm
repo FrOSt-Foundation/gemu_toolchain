@@ -1,5 +1,8 @@
-; A contains the device struct
-; B contains the floppy ID
+; A contains the floppy ID
+; B contains the device listD
+
+.dat 0 0 0
+.dat "cFrOSt" 0 0 0
 
 log A
 log B
