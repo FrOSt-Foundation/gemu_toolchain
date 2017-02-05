@@ -2,6 +2,8 @@
 
 This skeleton uses GEMUSingle, clang and [Yamakaky's assembler] (https://github.com/Yamakaky/dcpu) (which is also a dissambler, a debugger and a GEMU compatible emulator).
 
+This toolchain has been written with C developpment in mind, but you can use it to compile dasm-only programs as well.
+
 To compile, use `make`. To run, use `make run`.
 
 ---
@@ -16,6 +18,8 @@ To compile, use `make`. To run, use `make run`.
   - *bootloader.h* contains the implementation of the struct provided by the bootloader
   - *entrypoint.c* is the implementation of the entrypoint in C.
 - *tools/* contains all of the required tools to compile, link, assemble, run and debug your programs
+
+All of the files in *boot/* will be added before the files in *program/* in the final binary. You can use labels and constants from one directory to the other in dasm and from *boot/* to *program/* in C. No need to use `.include` in dasm as it is included by default.
 
 ## Makefile options
 
@@ -37,6 +41,12 @@ The files finishing in .sym are the symbol maps usable in the debugger.
 - *program/* contains all assembly files generated from C.
 - *program.dasm* is the concatenation of all assembly files from *boot/* and *program/*.
 - *program.bin* contains the bootsector with the correct number of sectors to load from the floppy.
+
+---
+
+### TODO
+
+- add a way to specify the order of the files in each directory (for dasm files).
 
 ---
 
