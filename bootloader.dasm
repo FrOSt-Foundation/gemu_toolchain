@@ -49,14 +49,15 @@
 
 jsr detect_peripherals
 
-ife [screen], 0
-    set PC, error
 ife [n_media], 0
     set PC, error
 
+ife [screen], 0
+    set PC, no_screen_continue
 set A, 0
 set B, SCREEN_LOCATION
 hwi [screen] ;Mapping screen
+:no_screen_continue
 
 set I, KISS_welcome
 set X, 3
@@ -149,6 +150,8 @@ set PC, POP
 ifn [bootsectors], 0
     set Z, [bootsectors]
 ife [keyboard], 0
+    set PC, POP
+ife [screen], 0
     set PC, POP
 set A, X
 sub A, bootsectors - 1
@@ -248,6 +251,8 @@ sub PC, 5
 ; I -> char*
 ; X, Y -> position
 :print
+ife [screen], 0
+    set PC, POP
 set PUSH, J
 set PUSH, A
 set PUSH, Y
