@@ -77,4 +77,4 @@ run: all
 	./tools/GEMUSingle -nofliprom -rom $(BIN_BOOTLOADER) -floppy $(BIN)
 
 debug: all
-	./tools/emulator --debugger --symbols $(BIN_BOOTLOADER).sym -d clock -d keyscreen -d m35fd=$(BIN) $(BIN_BOOTLOADER)
+	./tools/emulator --debugger --symbols $(BIN).nobootsector.noswap.sym -d clock -d keyscreen -d m35fd=$(BIN).noswap $(BIN_BOOTLOADER)
