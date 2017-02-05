@@ -7,7 +7,8 @@ SFLAGS = --remove-unused
 BOOTLOADER = bootloader.dasm
 BIN_BOOTLOADER = bin/bootloader.bin
 
-BOOT_FILES_S = $(wildcard boot/*.dasm)
+BOOT_FILES_SS = $(wildcard boot/*.dasm)
+BOOT_FILES_S = $(filter-out boot/bootsector.dasm, $(BOOT_FILES_SS))
 BOOT_INC = -Iboot/ -Ikernel/
 BOOT_FLAGS = $(CFLAGS)
 BOOT_FILES_C = $(wildcard boot/*.c)
@@ -24,12 +25,19 @@ KERNEL_FILES_AS = $(KERNEL_FILES_S) $(KERNEL_FILES_OBJ)
 BIN_AS = bin/cFrOSt.dasm
 BIN = bin/cFrOSt.bin
 
+BOOTSECTOR = boot/bootsector.dasm
+BIN_BOOTSECTOR = bin/bootsector.bin.noswap
+
 all: $(BIN_BOOTLOADER) $(BIN)
 
-$(BIN): $(BOOT_FILES_AS) $(KERNEL_FILES_AS)
+$(BIN): $(BIN_BOOTSECTOR) $(BOOT_FILES_AS) $(KERNEL_FILES_AS)
 	cat $(BOOT_FILES_AS) $(KERNEL_FILES_AS) > $(BIN_AS)
-	$(AS) $< -o $@.noswap
+	$(AS) $(BIN_AS) -o $@.nobootsector.noswap
+	cat $(BIN_BOOTSECTOR) $@.nobootsector.noswap > $@.noswap
 	dd conv=swab < $@.noswap > $@
+
+$(BIN_BOOTSECTOR) : $(BOOTSECTOR)
+	$(AS) $< -o $@
 
 $(BIN_BOOTLOADER): $(BOOTLOADER)
 	mkdir -p bin

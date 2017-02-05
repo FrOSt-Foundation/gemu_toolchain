@@ -32,6 +32,7 @@
 
 #define SECTOR_LOCATION 0xD000
 #define FLOPPY_STATE_BUSY 3
+#define SECTOR_SIZE 0x200
 
 #define STANDARD_SCREEN 0x7000
 #define STANDARD_MEDIA 0x4000
@@ -94,10 +95,9 @@ log [media]
 sub PC, 1
 
 :copy
-set I, SECTOR_LOCATION + 13
+set I, SECTOR_LOCATION
 set J, 0
-set C, 512
-set PUSH, PC
+set C, SECTOR_SIZE
 :copy_end
 
 :find_bootsector
@@ -113,7 +113,7 @@ ife I, [n_media]
     hwi [I + media]
     set Y, POP
     jsr wait
-    ife [SECTOR_LOCATION + 511], 0x55AA
+    ife [SECTOR_LOCATION + 0x1FF], 0x55AA
         jsr sector_found
     add I, 1
     ifn I, [n_media]
@@ -131,7 +131,7 @@ set A, bootsectors
 set X, A
 set [A], [I + media]
 set PUSH, I
-set I, SECTOR_LOCATION + 3
+set I, SECTOR_LOCATION + 0x1F5
 set PUSH, X
 set X, 2
 jsr print

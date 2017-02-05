@@ -1,13 +1,64 @@
+; Minimal boot sector
+; You can just slap it at the beginning of you program and change the corresponding values
+;
 ; A contains the floppy ID
-; B contains the device listD
+; B contains the device list ID
 
+#define PROGRAM_SIZE 0x1 ; in sectors (TO CHANGE)
+
+#define COPY_LOCATION 0xF000
+#define FLOPPY_STATE_BUSY 3
+#define SECTOR_SIZE 0x200
+
+set I, copy
+set J, COPY_LOCATION
+set C, memcpy - copy
+set PUSH, COPY_LOCATION
+set PC, memcpy
+
+:copy
+set PUSH, B
+set PUSH, A
+set Y, 0
+set Z, PROGRAM_SIZE + 1
+set X, 1
+set A, 2
+hwi PEEK
+set A, 0
+hwi PEEK
+ife B, FLOPPY_STATE_BUSY
+    sub PC, 3
+add X, 1
+add Y, SECTOR_SIZE
+ifg X, Z
+    add PC, 1
+sub PC, 10
+set A, POP
+set B, POP
+set C, 0
+set X, 0
+set Y, 0
+set Z, 0
+set EX, 0
+set SP, 0
+set PC, 0
+
+; I -> from
+; J -> to
+; C -> size
+:memcpy
+ife C, 0
+    set PC, POP
+sti [J], [I]
+sub C, 1
+sub PC, 5
+
+
+.org 0x1F2, 0
+; reserved for future use
 .dat 0 0 0
+; name, needs to reserve 10 u16 in total (TO CHANGE)
 .dat "cFrOSt" 0 0 0
 
-log A
-log B
-
-sub PC, 1
-
-.org 0x1FF, 0
+; magic word to be found as a bootsector by the bootloader
 .dat 0x55AA
