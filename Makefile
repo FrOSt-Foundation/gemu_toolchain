@@ -42,18 +42,17 @@ $(BIN): $(BIN_BOOTSECTOR) $(BIN).nobootsector.noswap
 
 $(BIN).nobootsector.noswap: $(BOOT_FILES_AS) $(KERNEL_FILES_AS)
 	@cat $(BOOT_FILES_AS) $(KERNEL_FILES_AS) > $(BIN_AS)
-	@$(AS) $(SFLAGS) $(BIN_AS) -o $@
-	@$(AS) $(SFLAGS) $(BIN_AS) --symbols $@.sym
+	@$(AS) $(SFLAGS) $(BIN_AS) --symbols $@.sym -o $@
 
 $(BIN_BOOTSECTOR) : $(BOOTSECTOR)
 	@mkdir -p bin/KISS_bootloader
 	@echo "AS " $<
-	@$(AS) $< -o $@
+	@$(AS) $(SFLAGS) $< --symbols $@.sym -o $@
 
 $(BIN_BOOTLOADER): $(BOOTLOADER)
 	@mkdir -p bin/KISS_bootloader
 	@echo "AS " $<
-	@$(AS) $< -o $@
+	@$(AS) $(SFLAGS) $< --symbols $@.sym -o $@
 
 bin/boot/%.c.dasm: boot/%.c
 	@mkdir -p bin/boot
@@ -78,4 +77,4 @@ run: all
 	./tools/GEMUSingle -nofliprom -rom $(BIN_BOOTLOADER) -floppy $(BIN)
 
 debug: all
-	./tools/emulator --debugger --symbols $(BIN).nobootsector.noswap.sym -d clock -d keyscreen -d m35fd=$(BIN) $(BIN_BOOTLOADER)
+	./tools/emulator --debugger --symbols $(BIN_BOOTLOADER).sym -d clock -d keyscreen -d m35fd=$(BIN) $(BIN_BOOTLOADER)
