@@ -1,7 +1,7 @@
 CC = tools/clang
 AS = tools/assembler
 
-CFLAGS = -MP -MD -ccc-host-triple dcpu16 -Oz -Weverything -fcolor-diagnostics -std=c11 -Wno-shadow
+CFLAGS = -MP -MD -ccc-host-triple dcpu16 -Oz -std=c11
 SFLAGS = --remove-unused
 
 BOOTLOADER = bootloader.dasm
@@ -30,6 +30,8 @@ BIN_BOOTSECTOR = bin/bootsector.bin.noswap
 
 SECTOR_SIZE = 1024
 
+.PHONY: all clean run
+
 all: $(BIN_BOOTLOADER) $(BIN)
 
 $(BIN): $(BIN_BOOTSECTOR) $(BIN).nobootsector.noswap
@@ -39,20 +41,29 @@ $(BIN): $(BIN_BOOTSECTOR) $(BIN).nobootsector.noswap
 
 $(BIN).nobootsector.noswap: $(BOOT_FILES_AS) $(KERNEL_FILES_AS)
 	cat $(BOOT_FILES_AS) $(KERNEL_FILES_AS) > $(BIN_AS)
-	$(AS) $(BIN_AS) -o $@
+	$(AS) $(SFLAGS) $(BIN_AS) -o $@
 
 $(BIN_BOOTSECTOR) : $(BOOTSECTOR)
+	@mkdir -p bin
 	$(AS) $< -o $@
 
 $(BIN_BOOTLOADER): $(BOOTLOADER)
-	mkdir -p bin
+	@mkdir -p bin
 	$(AS) $< -o $@
 
 bin/boot/%.c.dasm: boot/%.c
-	$(CC) $(BOOT_FLAGS) $(BOOT_INC) $< -S $@
+	@mkdir -p bin/boot
+	$(CC) $(BOOT_FLAGS) $(BOOT_INC) $< -S -o $@
+	@sed -i -re 's/rfi/rfi 0/i' $@
+	@sed -i -re "s/_L/_$(shell echo $@ | sed -re 's|/|_|g')/" $@
+	@sed -i -re 's/\b(_[a-zA-Z0-9_]+\.s[A-Z]+[0-9]+_[0-9]+)/.\1/g' $@
 
 bin/kernel/%.c.dasm: kernel/%.c
-	$(CC) $(KERNEL_FLAGS) $(KERNEL_INC) $< -S $@
+	@mkdir -p bin/kernel
+	$(CC) $(KERNEL_FLAGS) $(KERNEL_INC) $< -S -o $@
+	@sed -i -re 's/rfi/rfi 0/i' $@
+	@sed -i -re "s/_L/_$(shell echo $@ | sed -re 's|/|_|g')/" $@
+	@sed -i -re 's/\b(_[a-zA-Z0-9_]+\.s[A-Z]+[0-9]+_[0-9]+)/.\1/g' $@
 
 clean:
 	rm -rf bin/*

@@ -1,6 +1,1 @@
-log A
-log B
-
-sub PC, 1
-.org 0x1FF, 0
-.dat 0xDEAD
+set PC, kernel
