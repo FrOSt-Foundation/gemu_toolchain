@@ -59,7 +59,7 @@ bin/boot/%.c.dasm: boot/%.c
 	@echo "CC " $<
 	@$(CC) $(BOOT_FLAGS) $(BOOT_INC) $< -S -o $@
 	@sed -i -re 's/rfi/rfi 0/i' $@
-	@sed -i -re "s/_L/_$(shell echo $@ | sed -re 's|/|_|g')/" $@
+	@sed -i -re "s/_L/$(shell echo $@ | sed -re 's|/|_|g')/" $@
 	@sed -i -re 's/\b(_[a-zA-Z0-9_]+\.s[A-Z]+[0-9]+_[0-9]+)/.\1/g' $@
 
 bin/program/%.c.dasm: program/%.c
@@ -67,7 +67,7 @@ bin/program/%.c.dasm: program/%.c
 	@echo "CC " $<
 	@$(CC) $(KERNEL_FLAGS) $(KERNEL_INC) $< -S -o $@
 	@sed -i -re 's/rfi/rfi 0/i' $@
-	@sed -i -re "s/_L/_$(shell echo $@ | sed -re 's|/|_|g')/" $@
+	@sed -i -re "s/_L/$(shell echo $@ | sed -re 's|/|_|g')/" $@
 	@sed -i -re 's/\b(_[a-zA-Z0-9_]+\.s[A-Z]+[0-9]+_[0-9]+)/.\1/g' $@
 
 clean:
