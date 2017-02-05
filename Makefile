@@ -9,21 +9,21 @@ BIN_BOOTLOADER = bin/bootloader.bin
 
 BOOT_FILES_SS = $(wildcard boot/*.dasm)
 BOOT_FILES_S = $(filter-out boot/bootsector.dasm, $(BOOT_FILES_SS))
-BOOT_INC = -Iboot/ -Ikernel/
+BOOT_INC = -Iboot/ -Iprogram/
 BOOT_FLAGS = $(CFLAGS)
 BOOT_FILES_C = $(wildcard boot/*.c)
 BOOT_FILES_OBJ = $(subst boot, bin/boot, $(BOOT_FILES_C:.c=.c.dasm))
 BOOT_FILES_AS = $(BOOT_FILES_S) $(BOOT_FILES_OBJ)
 
 KERNEL_FILES_S = $(wildcard kernel/*.dasm)
-KERNEL_INC = -Ikernel/
+KERNEL_INC = -Iprogram/
 KERNEL_FLAGS = $(CFLAGS)
 KERNEL_FILES_C = $(wildcard kernel/*.c)
 KERNEL_FILES_OBJ = $(subst kernel, bin/kernel, $(KERNEL_FILES_C:.c=.c.dasm))
 KERNEL_FILES_AS = $(KERNEL_FILES_S) $(KERNEL_FILES_OBJ)
 
-BIN_AS = bin/cFrOSt.dasm
-BIN = bin/cFrOSt.bin
+BIN_AS = bin/program.dasm
+BIN = bin/program.bin
 
 BOOTSECTOR = boot/bootsector.dasm
 BIN_BOOTSECTOR = bin/bootsector.bin.noswap

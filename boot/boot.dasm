@@ -1,1 +1,1 @@
-set PC, kernel
+set PC, entrypoint
