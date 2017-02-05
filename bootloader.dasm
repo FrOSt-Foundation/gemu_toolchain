@@ -52,7 +52,7 @@ jsr detect_peripherals
 ife [n_media], 0
     set PC, error
 
-ife [screen], 0
+ife [screen], 0xFFFF
     set PC, no_screen_continue
 set A, 0
 set B, SCREEN_LOCATION
@@ -151,7 +151,7 @@ ifn [bootsectors], 0
     set Z, [bootsectors]
 ife [keyboard], 0
     set PC, POP
-ife [screen], 0
+ife [screen], 0xFFFF
     set PC, POP
 set A, X
 sub A, bootsectors - 1
@@ -243,7 +243,7 @@ sub PC, 5
 :memcpy_end
 
 :keyboard .dat 0
-:screen .dat 0
+:screen .dat 0xFFFF
 :n_media .dat 0
 :media .dat 0 0 0 0 0 0 0 0 0 0
 :bootsectors .dat 0 0 0 0 0 0 0 0 0 0
@@ -251,7 +251,7 @@ sub PC, 5
 ; I -> char*
 ; X, Y -> position
 :print
-ife [screen], 0
+ife [screen], 0xFFFF
     set PC, POP
 set PUSH, J
 set PUSH, A
