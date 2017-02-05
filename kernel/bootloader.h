@@ -3,10 +3,12 @@
 #include "types.h"
 
 struct Device {
-    u16 hwiId;
-    u32 hadwareId;
+    u16 id;
+    u16 hardwareIDA;
+    u16 hardwareIDB;
     u16 hardwareVersion;
-    u32 manufacturerId;
+    u16 manufacturerIDA;
+    u16 manufacturerIDB;
 };
 
 struct DeviceList {
