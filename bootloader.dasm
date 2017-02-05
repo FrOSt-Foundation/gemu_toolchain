@@ -41,7 +41,7 @@
 #define DEVICES_LOCATION 0xE000
 
 #define SCREEN_LOCATION 0x8000
-#define COLOR 0x2000
+#define COLOR 0xF000
 
 #define KEY_ENTER 0x11
 #define KEY_UP 0x80

@@ -4,8 +4,8 @@ AS = tools/assembler
 CFLAGS = -MP -MD -ccc-host-triple dcpu16 -Oz -Weverything -fcolor-diagnostics -std=c11 -Wno-shadow
 SFLAGS = --remove-unused
 
-ROM = rom.dasm
-BIN_ROM = bin/rom.bin
+BOOTLOADER = bootloader.dasm
+BIN_BOOTLOADER = bin/bootloader.bin
 
 BOOT_FILES_S = $(wildcard boot/*.dasm)
 BOOT_INC = -Iboot/ -Ikernel/
@@ -24,14 +24,14 @@ KERNEL_FILES_AS = $(KERNEL_FILES_S) $(KERNEL_FILES_OBJ)
 BIN_AS = bin/cFrOSt.dasm
 BIN = bin/cFrOSt.bin
 
-all: $(BIN_ROM) $(BIN)
+all: $(BIN_BOOTLOADER) $(BIN)
 
 $(BIN): $(BOOT_FILES_AS) $(KERNEL_FILES_AS)
 	cat $(BOOT_FILES_AS) $(KERNEL_FILES_AS) > $(BIN_AS)
 	$(AS) $< -o $@.noswap
 	dd conv=swab < $@.noswap > $@
 
-$(BIN_ROM): $(ROM)
+$(BIN_BOOTLOADER): $(BOOTLOADER)
 	mkdir -p bin
 	$(AS) $< -o $@
 
@@ -45,4 +45,4 @@ clean:
 	rm -rf bin/*
 
 run: all
-	./GEMUSingle -nofliprom -rom $(BIN_ROM) -floppy $(BIN)
+	./GEMUSingle -nofliprom -rom $(BIN_BOOTLOADER) -floppy $(BIN)
