@@ -7,8 +7,7 @@ SFLAGS = --remove-unused
 BOOTLOADER = KISS_bootloader/bootloader.dasm
 BIN_BOOTLOADER = bin/bootloader.bin
 
-BOOT_FILES_SS = $(wildcard boot/*.dasm)
-BOOT_FILES_S = $(filter-out boot/bootsector.dasm, $(BOOT_FILES_SS))
+BOOT_FILES_S = $(wildcard boot/*.dasm)
 BOOT_INC = -Iboot/ -Iprogram/
 BOOT_FLAGS = $(CFLAGS)
 BOOT_FILES_C = $(wildcard boot/*.c)
@@ -25,7 +24,7 @@ KERNEL_FILES_AS = $(KERNEL_FILES_S) $(KERNEL_FILES_OBJ)
 BIN_AS = bin/program.dasm
 BIN = bin/program.bin
 
-BOOTSECTOR = boot/bootsector.dasm
+BOOTSECTOR = KISS_bootloader/bootsector.dasm
 BIN_BOOTSECTOR = bin/bootsector.bin.noswap
 
 SECTOR_SIZE = 1024

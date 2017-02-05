@@ -1,3 +1,3 @@
 [submodule "KISS_bootloader"]
 	path = KISS_bootloader
-	url = https://github.com/FrOSt-Foundation/KISS_bootloader.git
+	url = git@github.com:FrOSt-Foundation/KISS_bootloader.git
