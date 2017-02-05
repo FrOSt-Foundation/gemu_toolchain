@@ -11,10 +11,10 @@ To compile, use `make`. To run, use `make run`.
 - *KISS_bootloader/* contains the [KISS bootloader] (https://github.com/FrOSt-Foundation/KISS_bootloader)
 - *boot/* contains a minimal C bootstrap code (boot.dasm)
 - *program/* contains a minimal C code program.
-..- *types.h* contains all of dcpu specific types (u16, u32, and so on)
-..- *asm.c/asm.h* contain an implementation of specific assembly functions not available with C
-..- *bootloader.h* contains the implementation of the struct provided by the bootloader
-..- *entrypoint.c* is the implementation of the entrypoint in C.
+  - *types.h* contains all of dcpu specific types (u16, u32, and so on)
+  - *asm.c/asm.h* contain an implementation of specific assembly functions not available with C
+  - *bootloader.h* contains the implementation of the struct provided by the bootloader
+  - *entrypoint.c* is the implementation of the entrypoint in C.
 - *tools/* contains all of the required tools to compile, link, assemble, run and debug your programs
 
 ## Makefile options
