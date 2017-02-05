@@ -26,4 +26,18 @@ To compile, use `make`. To run, use `make run`.
 
 ---
 
+### Output of the makefile
+
+The Makefile outputs a lot of different files in the *bin/* folder.
+The files finishing in .bin are usable with GEMU.
+The files finihsing in .bin.noswap are usable with Yamakaky's emulator (except with bootloader.bin which is also usable with Yamakaky's emulator).
+The files finishing in .sym are the symbol maps usable in the debugger.
+
+- *KISS_bootloader/* contains all compilation files related to the KISS bootloader.
+- *program/* contains all assembly files generated from C.
+- *program.dasm* is the concatenation of all assembly files from *boot/* and *program/*.
+- *program.bin* contains the bootsector with the correct number of sectors to load from the floppy.
+
+---
+
 Please feel free to contribute to this toolchain!
