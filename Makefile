@@ -1,24 +1,24 @@
 CC = tools/clang
 AS = tools/assembler
 
-CFLAGS = -MP -MD -ccc-host-triple dcpu16 -Oz -std=c11
+CFLAGS = -MP -MD -ccc-host-triple dcpu16 -Oz -std=c11 -nostdlib -nostdinc
 SFLAGS = --remove-unused
 
 BOOTLOADER = KISS_bootloader/bootloader.dasm
 BIN_BOOTLOADER = bin/KISS_bootloader/bootloader.bin
 
-BOOT_FILES_S = $(wildcard boot/*.dasm)
+BOOT_FILES_S = $(shell find $(PWD)/boot -type f -name "*.dasm")
 BOOT_INC = -Iboot/ -Iprogram/include
 BOOT_FLAGS = $(CFLAGS)
-BOOT_FILES_C = $(wildcard boot/*.c)
-BOOT_FILES_OBJ = $(subst boot, bin/boot, $(BOOT_FILES_C:.c=.c.dasm))
+BOOT_FILES_C = $(shell find $(PWD)/boot -type f -name "*.c")
+BOOT_FILES_OBJ = $(subst boot,bin/boot, $(BOOT_FILES_C:.c=.c.dasm))
 BOOT_FILES_AS = $(BOOT_FILES_S) $(BOOT_FILES_OBJ)
 
-KERNEL_FILES_S = $(wildcard program/*.dasm)
+KERNEL_FILES_S = $(shell find $(PWD)/program -type f -name "*.dasm")
 KERNEL_INC = -Iprogram/include
 KERNEL_FLAGS = $(CFLAGS)
-KERNEL_FILES_C = $(wildcard program/src/*.c)
-KERNEL_FILES_OBJ = $(subst program, bin/program, $(KERNEL_FILES_C:.c=.c.dasm))
+KERNEL_FILES_C = $(shell find $(PWD)/program -type f -name "*.c")
+KERNEL_FILES_OBJ = $(subst program,bin/program, $(KERNEL_FILES_C:.c=.c.dasm))
 KERNEL_FILES_AS = $(KERNEL_FILES_S) $(KERNEL_FILES_OBJ)
 
 BIN_AS = bin/program.dasm
@@ -31,7 +31,7 @@ SECTOR_SIZE = 1024
 
 .PHONY: all clean run
 
--include $(BOOT_FILES_AS KERNEL_FILES_AS:.s=.d)
+-include $(BOOT_FILES_AS KERNEL_FILES_AS:.c.dasm=.c.d)
 
 all: $(BIN_BOOTLOADER) $(BIN)
 
@@ -54,20 +54,20 @@ $(BIN_BOOTLOADER): $(BOOTLOADER)
 	@echo "AS " $<
 	@$(AS) $(SFLAGS) $< --symbols $@.sym -o $@
 
-bin/boot/%.c.dasm: boot/%.c
-	@mkdir -p bin/boot
+$(PWD)/bin/boot/%.c.dasm: boot/%.c
+	mkdir -p $(shell dirname $@)
 	@echo "CC " $<
 	@$(CC) $(BOOT_FLAGS) $(BOOT_INC) $< -S -o $@
 	@sed -i -re 's/rfi/rfi 0/i' $@
-	@sed -i -re "s/_L/$(shell echo $@ | sed -re 's|/|_|g')/" $@
+	@sed -i -re "s/_L/$(shell echo $@ | tail -c +2 | sed -re 's|/|_|g')/" $@
 	@sed -i -re 's/\b(_[a-zA-Z0-9_]+\.s[A-Z]+[0-9]+_[0-9]+)/.\1/g' $@
 
-bin/program/%.c.dasm: program/%.c
-	@mkdir -p bin/program/src
+$(PWD)/bin/program/%.c.dasm: program/%.c
+	@mkdir -p $(shell dirname $@)
 	@echo "CC " $<
 	@$(CC) $(KERNEL_FLAGS) $(KERNEL_INC) $< -S -o $@
 	@sed -i -re 's/rfi/rfi 0/i' $@
-	@sed -i -re "s/_L/$(shell echo $@ | sed -re 's|/|_|g')/" $@
+	@sed -i -re "s/_L/$(shell echo $@ | tail -c +2 | sed -re 's|/|_|g')/" $@
 	@sed -i -re 's/\b(_[a-zA-Z0-9_]+\.s[A-Z]+[0-9]+_[0-9]+)/.\1/g' $@
 
 clean:
